@@ -1,3 +1,5 @@
+package entitati;
+
 import java.util.List;
 
 public class Subsectiune extends Sectiune {
@@ -27,7 +29,7 @@ public class Subsectiune extends Sectiune {
     // metode
     public void afisare() {
         super.afisare();
-        System.out.println("Subsectiune: " + this.subgen);
+        System.out.println("entitati.Subsectiune: " + this.subgen);
         // iteram prin lista de carti
         System.out.println("Carti din aceasta subsectiune: ");
         for(Carte carte: this.cartiSubgen) {

@@ -1,6 +1,6 @@
-import java.util.Collection;
+package entitati;
+
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class Autor {
@@ -80,6 +80,6 @@ public class Autor {
     }
 
     public void afisareAutor() {
-        System.out.println("Autor: " + this.prenume + " " + this.nume);
+        System.out.println("entitati.Autor: " + this.prenume + " " + this.nume);
     }
 }

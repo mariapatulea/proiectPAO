@@ -1,3 +1,5 @@
+package entitati;
+
 import java.util.List;
 
 public class Guest extends Cititor {

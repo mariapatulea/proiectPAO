@@ -1,3 +1,7 @@
+package servicii;
+
+import entitati.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -122,7 +126,7 @@ public class Serviciu {
 
     // comanda 11
     public Editura adaugare_editura(Scanner console) {
-        System.out.println("Editura: ");
+        System.out.println("entitati.Editura: ");
         String denumire = console.next();
         Editura edituraNoua = new Editura(denumire);
         edituriCarti.add(edituraNoua);

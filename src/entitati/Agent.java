@@ -1,14 +1,16 @@
-public class Editor {
+package entitati;
+
+public class Agent {
     // date membre/atribute private
     private String prenume;
     private String nume;
-    private Editura editura;
+    private Agentie agentie;
 
     // constructor cu toti parametrii
-    public Editor(String prenume, String nume, Editura editura) {
+    public Agent(String prenume, String nume, Agentie agentie) {
         this.prenume = prenume;
         this.nume = nume;
-        this.editura = editura;
+        this.agentie = agentie;
     }
 
     // setteri si getteri pentru fiecare atribut
@@ -26,17 +28,17 @@ public class Editor {
         this.nume = nume;
     }
 
-    public Editura getEditura() {
-        return editura;
+    public Agentie getAgentie() {
+        return agentie;
     }
-    public void setEditura(Editura editura) {
-        this.editura = editura;
+    public void setAgentie(Agentie agentie) {
+        this.agentie = agentie;
     }
 
     // metode
     public void afisare() {
-        System.out.println("Prenume editor: " + this.prenume);
-        System.out.println("Nume editor: " + this.nume);
-        this.editura.afisare();
+        System.out.println("Prenume agent: " + this.prenume);
+        System.out.println("Nume agent: " + this.nume);
+        this.agentie.afisare();
     }
 }

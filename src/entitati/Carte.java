@@ -1,3 +1,5 @@
+package entitati;
+
 public class Carte {
     // date membre/atribute private
     private String titluCarte;

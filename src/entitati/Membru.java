@@ -1,6 +1,8 @@
+package entitati;
+
 import java.util.List;
 
-public class Membru extends Cititor{
+public class Membru extends Cititor {
     // constructor
     public Membru(String prenume, String nume, int idCititor, List<Carte> cartiImprumutate) {
         super(prenume, nume, idCititor, cartiImprumutate);

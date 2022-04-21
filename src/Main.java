@@ -1,3 +1,6 @@
+import entitati.*;
+import servicii.Serviciu;
+
 import java.util.*;
 import java.util.Scanner;
 

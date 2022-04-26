@@ -73,15 +73,19 @@ public class Main {
         // afisare comenzi pentru actiuni
         Scanner console = new Scanner(System.in);
         Serviciu serviciu = new Serviciu();
+
+        serviciu.incarcaDate();  // incarcam datele
+
         List<String> comenziDisponibile = Arrays.asList("adaugare_cititor_membru", "adaugare_carte", "afisare_carti",
                 "afisare_inventar", "afisare_carti_imprumutate", "afisare_carti_autor", "adaugare_cititor_guest",
-                "returnare_carte", "imprumutare_carte", "adauagare_autor", "adaugare_editura");
+                "returnare_carte", "imprumutare_carte", "adaugare_autor", "adaugare_editura");
 
         System.out.println("Acestea sunt comenzile disponibile:");
         for(int i = 0; i < comenziDisponibile.size(); i++) {
             System.out.println((i + 1) + "). " + comenziDisponibile.get(i));
         }
-        System.out.println("\nIntroduce un numar intre 1 - 11 pentru a alege una din aceste comenzi: ");
+        System.out.println("\nIntroduce un numar intre 1 - 11 pentru a alege una din aceste comenzi, sau 0 pentru a " +
+                "parasi meniul: ");
         String comanda = console.next();
         System.out.println("\nAi ales comanda " + comenziDisponibile.get((parseInt(comanda)) - 1) + ".");
 
@@ -134,7 +138,7 @@ public class Main {
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println("Ai introdus o comanda invalida!");
         }
     }
 }

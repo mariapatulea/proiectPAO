@@ -1,5 +1,5 @@
-prenume,nume,idCititor,cartiImprumutate
-alex,popescu,34,None
-maria,patulea,56,None
-andrei,georgescu,78,None
-marius,sdf,4,None
+prenume,nume,idCititor,tip
+alex,popescu,34,membru
+maria,patulea,56,membru
+andrei,georgescu,78,membru
+marius,sdf,4,mmbru

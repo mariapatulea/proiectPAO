@@ -12,18 +12,28 @@ public class Serviciu {
     private final List<Carte> cartiBiblioteca = new ArrayList<>();
     private final List<Autor> autoriCarti = new ArrayList<>();
     private final List<Editura> edituriCarti = new ArrayList<>();
+    private ScrieInFisier scrieInFisier = ScrieInFisier.getInstance();
+    private CitesteDinFisier citesteDinFisier = CitesteDinFisier.getInstance();
 
     // comanda 1
     public void adaugare_cititor_membru(Scanner console) {
+        ArrayList<String> continutFisier = new ArrayList<>();
         System.out.println("Prenume cititor: ");
         String prenume = console.next();
+        continutFisier.add(prenume);
         System.out.println("Nume cititor: ");
         String nume = console.next();
+        continutFisier.add(nume);
         System.out.println("ID cititor: ");
         int id = console.nextInt();
+        continutFisier.add(Integer.toString(id));
         List<Carte> cartiImprumutate = new ArrayList<>();
+        continutFisier.add("None");
 
         Membru membruNou = new Membru(prenume, nume, id, cartiImprumutate);
+        scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
+        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Cititor.csv");
+        System.out.println(fisier);
         cititoriMembri.add(membruNou);
         System.out.println(cititoriMembri.size());
     }
@@ -121,6 +131,9 @@ public class Serviciu {
         String nume = console.next();
         Autor autorNou = new Autor(prenume, nume);
         autoriCarti.add(autorNou);
+
+
+
         return autorNou;
     }
 
@@ -183,6 +196,19 @@ public class Serviciu {
                     System.out.println();
                 }
             }
+        }
+    }
+
+    // metoda care incarca datele din fisierele csv
+    public void incarcaDate() {
+        CitesteDinFisier citesteDinFisier = CitesteDinFisier.getInstance();
+
+        // vrem sa adaugam in lista de cititori membri ce se gasete in fisierul Cititor.csv
+        ArrayList<ArrayList<String>> continutFisier = citesteDinFisier.citeste("./date/Cititor.csv");
+        for (ArrayList<String> line: continutFisier) {
+            ArrayList<Carte> cartiImprumutate = new ArrayList<>();
+            Membru membru = new Membru(line.get(0), line.get(1), Integer.parseInt(line.get(2)), cartiImprumutate);
+            cititoriMembri.add(membru);
         }
     }
 }

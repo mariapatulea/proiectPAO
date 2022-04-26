@@ -83,7 +83,7 @@ public class Main {
         }
         System.out.println("\nIntroduce un numar intre 1 - 11 pentru a alege una din aceste comenzi: ");
         String comanda = console.next();
-        System.out.println("\nAi ales comanda '" + comenziDisponibile.get((parseInt(comanda)) - 1) + "'.");
+        System.out.println("\nAi ales comanda " + comenziDisponibile.get((parseInt(comanda)) - 1) + ".");
 
         // realizare actiuni
         try {

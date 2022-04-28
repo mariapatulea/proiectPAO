@@ -14,6 +14,7 @@ public class Serviciu {
     private final List<Editura> edituriCarti = new ArrayList<>();
     private final ScrieInFisier scrieInFisier = ScrieInFisier.getInstance();
     private final CitesteDinFisier citesteDinFisier = CitesteDinFisier.getInstance();
+    private final AuditServiciu audit = AuditServiciu.getInstance();
 
     // comanda 1
     public void adaugare_cititor_membru(Scanner console) {
@@ -34,6 +35,8 @@ public class Serviciu {
         scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
         ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Cititor.csv");
         System.out.println(fisier);
+
+        audit.log("adaugare_cititor_membru");
     }
 
     // comanda 7
@@ -55,6 +58,8 @@ public class Serviciu {
         scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
         ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Cititor.csv");
         System.out.println(fisier);
+
+        audit.log("adaugare_cititor_guest");
     }
 
     // comanda 9
@@ -79,6 +84,8 @@ public class Serviciu {
                 break;
             }
         }
+
+        audit.log("imprumutare_carte");
     }
 
     // comanda 8
@@ -104,6 +111,8 @@ public class Serviciu {
                 break;
             }
         }
+
+        audit.log("returnare_carte");
     }
 
     // comanda 2
@@ -143,6 +152,8 @@ public class Serviciu {
         scrieInFisier.scrie("./date/Carte.csv", continutFisier);
         ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Carte.csv");
         System.out.println(fisier);
+
+        audit.log("adaugare_carte");
     }
 
     // comanda 10
@@ -159,6 +170,8 @@ public class Serviciu {
         ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Autor.csv");
         System.out.println(fisier);
 
+        audit.log("adaugare_autor");
+
         return autorNou;
     }
 
@@ -173,6 +186,8 @@ public class Serviciu {
         ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Editura.csv");
         System.out.println(fisier);
 
+        audit.log("adaugare_editura");
+
         return edituraNoua;
     }
 
@@ -182,6 +197,8 @@ public class Serviciu {
             carte.afisare();
             System.out.println();
         }
+
+        audit.log("afisare_carti");
     }
 
     // comanda 4
@@ -193,6 +210,8 @@ public class Serviciu {
             numarTotalCarti += carte.getNumarExemplare();
         }
         System.out.println("Numar total de carti: " + numarTotalCarti + ".");
+
+        audit.log("afisare_inventar");
     }
 
     // comanda 5
@@ -211,6 +230,8 @@ public class Serviciu {
             }
         }
         System.out.println("Numar total de carti imprumutate: " + numarTotalCartiImprumutate + ".");
+
+        audit.log("afisare_carti_imprumutate");
     }
 
     // comanda 6
@@ -227,6 +248,8 @@ public class Serviciu {
                 }
             }
         }
+
+        audit.log("afisare_carti_autor");
     }
 
     // metoda care incarca datele din fisierele csv

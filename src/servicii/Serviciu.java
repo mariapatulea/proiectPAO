@@ -4,6 +4,7 @@ import entitati.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Serviciu {
@@ -64,20 +65,27 @@ public class Serviciu {
 
     // comanda 9
     public void imprumutare_carte(Scanner console) {
+        for(Membru c: cititoriMembri) {
+            System.out.println(c.getIdCititor());
+        }
         System.out.println("Introduceti ID-ul cititorului care doreste sa imprumute o carte: ");
         int idCititor = console.nextInt();
         System.out.println("Introduceti ISBN-ul cartii: ");
         String isbn = console.next();
-        for(Cititor cititor: cititoriMembri) {
+        for(Membru cititor: cititoriMembri) {
             if(cititor.getIdCititor() == idCititor) {
                 for(Carte carte: cartiBiblioteca) {
-                    if(carte.getISBN() == isbn && carte.getNumarExemplare() >= 1) {
+                    if(Objects.equals(carte.getISBN(), isbn) && carte.getNumarExemplare() >= 1) {
                         List<Carte> cartiImpr = cititor.getCartiImprumutate();
                         cartiImpr.add(carte);
                         carte.setNumarExemplare(carte.getNumarExemplare() - 1);
                         cititor.setCartiImprumutate(cartiImpr);
                         System.out.println("Cititorul cu ID-ul " + idCititor + " a imprumutat cartea cu isbn-ul " +
                                 isbn);
+                        for(Carte _carte: cititor.getCartiImprumutate()) {
+                            _carte.afisare();
+                        }
+                        System.out.println("Am afisat cartile imprumutate de cititorul cu id-ul " + idCititor + ".");
                         break;
                     }
                 }
@@ -260,7 +268,7 @@ public class Serviciu {
         // Cititor.csv
         ArrayList<ArrayList<String>> continutFisier = citesteDinFisier.citeste("./date/Cititor.csv");
         for (ArrayList<String> line: continutFisier) {
-            if (line.get(3) == "membru") {
+            if (Objects.equals(line.get(3), "membru")) {
                 ArrayList<Carte> cartiImprumutate = new ArrayList<>();
                 Membru membru = new Membru(line.get(0), line.get(1), Integer.parseInt(line.get(2)), cartiImprumutate);
                 cititoriMembri.add(membru);

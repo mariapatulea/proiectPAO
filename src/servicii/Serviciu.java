@@ -99,14 +99,14 @@ public class Serviciu {
     // comanda 8
     public void returnare_carte(Scanner console) {
         // ne trb id-ul cititorului si isbn-ul cartii
-        System.out.println("Introduceti ID-ul cititorului care doreste sa imprumute o carte: ");
+        System.out.println("Introduceti ID-ul cititorului care doreste sa returneze o carte: ");
         int idCititor = console.nextInt();
         System.out.println("Introduceti ISBN-ul cartii: ");
         String isbn = console.next();
         for(Cititor cititor: cititoriMembri) {
             if(cititor.getIdCititor() == idCititor) {
                 for(Carte carte: cartiBiblioteca) {
-                    if(carte.getISBN() == isbn && cititor.getCartiImprumutate().contains(carte)) {
+                    if(Objects.equals(carte.getISBN(), isbn) && cititor.getCartiImprumutate().contains(carte)) {
                         List<Carte> cartiImpr = cititor.getCartiImprumutate();
                         cartiImpr.remove(carte);
                         carte.setNumarExemplare(carte.getNumarExemplare() + 1);
@@ -249,7 +249,7 @@ public class Serviciu {
         System.out.println("Introduceti numele autorului: ");
         String nume = console.next();
         for(Autor autor: autoriCarti) {
-            if(autor.getPrenume() == prenume && autor.getNume() == nume) {
+            if(Objects.equals(autor.getPrenume(), prenume) && Objects.equals(autor.getNume(), nume)) {
                 for(Carte cartePublicata: autor.getCartiPublicate()) {
                     cartePublicata.afisare();
                     System.out.println();
@@ -295,7 +295,7 @@ public class Serviciu {
             String denumireEditura = line.get(4);
             Editura editura = new Editura(denumireEditura);
             Boolean hardcover = false;
-            if (line.get(8) == "Da") {
+            if (Objects.equals(line.get(8), "Da")) {
                 hardcover = true;
             }
             Carte carte = new Carte(line.get(0), autor, Integer.parseInt(line.get(3)), editura,

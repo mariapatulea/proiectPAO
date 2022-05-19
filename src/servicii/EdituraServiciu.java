@@ -6,7 +6,7 @@ import java.sql.Statement;
 
 public class EdituraServiciu {
     private static EdituraServiciu instanta = null;
-    private final BazaDeDate bazaDeDate = BazaDeDate.getInstance();
+    private final Database bazaDeDate = Database.getInstance();
 
     // constructor privat
     private EdituraServiciu() { }

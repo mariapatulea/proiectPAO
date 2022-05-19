@@ -4,13 +4,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class BazaDeDate {
-    private static BazaDeDate instanta = null;
-    private BazaDeDate() {}  // constructor private
+public class Database {
+    private static Database instanta = null;
+    private Database() {}  // constructor private
 
-    public static BazaDeDate getInstance() {
+    public static Database getInstance() {
         if (instanta == null) {
-            instanta = new BazaDeDate();
+            instanta = new Database();
         }
         return instanta;
     }

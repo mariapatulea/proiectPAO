@@ -74,17 +74,19 @@ public class Main {
         Scanner console = new Scanner(System.in);
         Serviciu serviciu = new Serviciu();
 
-        serviciu.incarcaDate();  // incarcam datele
+//        serviciu.incarcaDateCSV();  // incarcam datele
+        serviciu.incarcaDateDB();
 
         List<String> comenziDisponibile = Arrays.asList("adaugare_cititor_membru", "adaugare_carte", "afisare_carti",
                 "afisare_inventar", "afisare_carti_imprumutate", "afisare_carti_autor", "adaugare_cititor_guest",
-                "returnare_carte", "imprumutare_carte", "adaugare_autor", "adaugare_editura");
+                "returnare_carte", "imprumutare_carte", "adaugare_autor", "adaugare_editura", "afisare_edituri",
+                "actualizare_editura", "stergere_editura");
 
         System.out.println("Acestea sunt comenzile disponibile:");
         for(int i = 0; i < comenziDisponibile.size(); i++) {
             System.out.println((i + 1) + "). " + comenziDisponibile.get(i));
         }
-        System.out.println("\nIntroduce un numar intre 1 - 11 pentru a alege una din aceste comenzi, sau 0 pentru a " +
+        System.out.println("\nIntroduce un numar intre 1 - 14 pentru a alege una din aceste comenzi, sau 0 pentru a " +
                 "parasi meniul: ");
         String comanda = console.next();
         System.out.println("\nAi ales comanda " + comenziDisponibile.get((parseInt(comanda)) - 1) + ".");
@@ -134,6 +136,18 @@ public class Main {
                 }
                 case "11": {
                     serviciu.adaugare_editura(console);
+                    break;
+                }
+                case "12": {
+                    serviciu.afisare_edituri();
+                    break;
+                }
+                case "13": {
+                    serviciu.actualizare_editura(console);
+                    break;
+                }
+                case "14": {
+                    serviciu.stergere_editura(console);
                     break;
                 }
             }

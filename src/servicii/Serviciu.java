@@ -2,6 +2,8 @@ package servicii;
 
 import entitati.*;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +18,7 @@ public class Serviciu {
     private final ScrieInFisier scrieInFisier = ScrieInFisier.getInstance();
     private final CitesteDinFisier citesteDinFisier = CitesteDinFisier.getInstance();
     private final AuditServiciu audit = AuditServiciu.getInstance();
+    private final EdituraServiciu edituraServiciu = EdituraServiciu.getInstance();
 
     // comanda 1
     public void adaugare_cititor_membru(Scanner console) {
@@ -186,9 +189,15 @@ public class Serviciu {
     // comanda 11
     public Editura adaugare_editura(Scanner console) {
         ArrayList<String> continutFisier = new ArrayList<>();
+
         System.out.println("Editura: ");
         String denumire = console.next();
         continutFisier.add(denumire);
+        if(edituraServiciu.create(denumire)) {
+            System.out.println("am apelat cu succes metoda create din EdituraServiciu");
+        } else {
+            System.out.println("nu am putut apela metoda create din EdituraServiciu");
+        }
         Editura edituraNoua = new Editura(denumire);
         scrieInFisier.scrie("./date/Editura.csv", continutFisier);
         ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Editura.csv");
@@ -197,6 +206,65 @@ public class Serviciu {
         audit.log("adaugare_editura");
 
         return edituraNoua;
+    }
+
+    // comanda 12
+    public void afisare_edituri() {
+        ResultSet resultSet = edituraServiciu.read();
+        try {
+            while (resultSet.next()) {
+                System.out.println("Id: " + resultSet.getString("idEditura") + " Denumire: " +
+                        resultSet.getString("denumire"));
+            }
+        } catch(SQLException ex) {
+            System.out.println("nu am putut apela metoda read din EdituraServiciu");
+        }
+
+        audit.log("afisare_edituri");
+    }
+
+    // comanda 13
+    public void actualizare_editura(Scanner console) {
+        System.out.println("Numele editurii de actualizat: ");
+        String denumire = console.next();
+        System.out.println("Noul Id al editurii: ");
+        int id = console.nextInt();
+
+        if (edituraServiciu.update(denumire, id)) {
+            System.out.println("am actualizat baza de date");
+            afisare_edituri();
+        } else {
+            System.out.println("nu am putut actualiza id-ul editurii");
+        }
+
+        audit.log("actualizare_editura");
+    }
+
+    // comanda 14
+    public void stergere_editura(Scanner console) {
+        System.out.println("Id-ul editurii de sters: ");
+        int id = console.nextInt();
+        String denumire = edituraServiciu.getDenumireById(id);
+
+        if(!denumire.equals("")) {
+            if (edituraServiciu.delete(id)) {
+                System.out.println("am actualizat baza de date");
+                afisare_edituri();
+                // trebuie sa sterg editura asta din lista de edituri din clasa Serviciu
+                for (int i = 0; i < edituriCarti.size(); i++) {
+                    if (edituriCarti.get(i).getDenumire().equals(denumire)) {
+                        edituriCarti.remove(i);
+                        break;
+                    }
+                }
+            } else {
+                System.out.println("nu am putut sterge editura");
+            }
+        } else {
+            System.out.println("nu am gasit aceasta editura in baza de date");
+        }
+
+        audit.log("stergere_editura");
     }
 
     // comanda 3
@@ -261,7 +329,7 @@ public class Serviciu {
     }
 
     // metoda care incarca datele din fisierele csv
-    public void incarcaDate() {
+    public void incarcaDateCSV() {
         CitesteDinFisier citesteDinFisier = CitesteDinFisier.getInstance();
 
         // vrem sa adaugam in lista de cititori membri si lista de cititori guest ce se gasete in fisierul
@@ -294,7 +362,7 @@ public class Serviciu {
             Autor autor = new Autor(prenumeAutor, numeAutor);
             String denumireEditura = line.get(4);
             Editura editura = new Editura(denumireEditura);
-            Boolean hardcover = false;
+            boolean hardcover = false;
             if (Objects.equals(line.get(8), "Da")) {
                 hardcover = true;
             }
@@ -311,5 +379,23 @@ public class Serviciu {
         }
 
         System.out.println("Am incarcat datele din fisierele csv!");
+    }
+
+    // metoda care incarca datele din baza de date
+    public void incarcaDateDB() {
+        // adaugam in lista de edituri ce se gaseste in baza de date
+        ResultSet resultSet = edituraServiciu.read();
+        try {
+            while (resultSet.next()) {
+                Editura editura = new Editura(resultSet.getString("denumire"));
+                edituriCarti.add(editura);
+            }
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("nu am putut incarca editurile din baza de date");
+        }
+
+        System.out.println("Am incarcat datele din baza de date!");
     }
 }

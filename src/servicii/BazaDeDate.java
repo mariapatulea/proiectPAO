@@ -19,7 +19,7 @@ public class BazaDeDate {
         try {
             // luam connection string-ul la baza de date
             Connection myConnectionString = DriverManager.getConnection("jdbc:mysql://localhost:3306/proiectPAO",
-                    "root", "Cat&Bones2019");
+                    "root", "12345678");
             return myConnectionString;
         }
         catch(SQLException e) {

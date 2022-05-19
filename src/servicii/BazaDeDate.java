@@ -22,7 +22,7 @@ public class BazaDeDate {
                     "root", "12345678");
             return myConnectionString;
         }
-        catch(SQLException e) {
+        catch (SQLException e) {
             e.printStackTrace();
             return null;
         }

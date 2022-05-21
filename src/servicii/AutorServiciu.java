@@ -18,6 +18,57 @@ public class AutorServiciu {
         return instanta;
     }
 
+    public String getPrenumeById(int id) {
+        try {
+            String query = String.format("select prenume from autori where idAutor = %d", id);
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            String prenume = "";
+            while (resultSet.next()) {
+                prenume = resultSet.getString("prenume");
+            }
+            return prenume;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public String getNumeById(int id) {
+        try {
+            String query = String.format("select nume from autori where idAutor = %d", id);
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            String nume = "";
+            while (resultSet.next()) {
+                nume = resultSet.getString("nume");
+            }
+            return nume;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public int getIdByLastName (String nume) {
+        try {
+            String query = String.format("select idAutor from autori where nume = '%s'", nume);
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            int id = -1;
+            while (resultSet.next()) {
+                id = resultSet.getInt("idAutor");
+            }
+            return id;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
     public int[] getAllIds() {
         int[] ids = new int[100];
         int i = 0;

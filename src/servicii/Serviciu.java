@@ -21,6 +21,7 @@ public class Serviciu {
     private final EdituraServiciu edituraServiciu = EdituraServiciu.getInstance();
     private final CititorServiciu cititorServiciu = CititorServiciu.getInstance();
     private final AutorServiciu autorServiciu = AutorServiciu.getInstance();
+    private final CarteServiciu carteServiciu = CarteServiciu.getInstance();
 
     // comanda 1
     public void adaugare_cititor_membru(Scanner console) {
@@ -150,16 +151,34 @@ public class Serviciu {
         System.out.println("Titlu carte: ");
         String titluCarte = console.next();
         continutFisier.add(titluCarte);
-        Autor autor = adaugare_autor(console);
-        String numeAutor = autor.getNume();
+        System.out.println("Prenume autor: ");
+        String prenumeAutor = console.next();
+        System.out.println("Nume autor: ");
+        String numeAutor = console.next();
         continutFisier.add(numeAutor);
-        String prenumeAutor = autor.getPrenume();
         continutFisier.add(prenumeAutor);
+
+        // get id autor
+        int idAutor = autorServiciu.getIdByLastName(numeAutor);
+        if (idAutor == -1) {
+            System.out.println("id autor invalid");
+            return;
+        }
+
         System.out.println("Numar volum: ");
         int numarVolum = console.nextInt();
         continutFisier.add(Integer.toString(numarVolum));
-        Editura editura = adaugare_editura(console);
-        continutFisier.add(editura.getDenumire());
+        System.out.println("Editura: ");
+        String editura = console.next();
+        continutFisier.add(editura);
+
+        // get id editura
+        int idEditura = edituraServiciu.getIdByDenumire(editura);
+        if (idEditura == -1) {
+            System.out.println("id editura invalid");
+            return;
+        }
+
         System.out.println("Numar pagini: ");
         int numarPagini = console.nextInt();
         continutFisier.add(Integer.toString(numarPagini));
@@ -177,7 +196,15 @@ public class Serviciu {
             continutFisier.add("Nu");
         }
 
-        Carte carteNoua = new Carte(titluCarte, autor, numarVolum, editura, numarPagini, isbn, numarExemplare, hardcover);
+        if (carteServiciu.create(titluCarte, numarVolum, idEditura, numarPagini, isbn, numarExemplare, hardcover,
+            -1, idAutor)) {
+            System.out.println("am adaugat cartea in baza de date");
+            incarcaDateDB("carte");
+        } else {
+            System.out.println("nu am putut adauga cartea in baza de date");
+        }
+
+//        Carte carteNoua = new Carte(titluCarte, autor, numarVolum, editura, numarPagini, isbn, numarExemplare, hardcover);
         scrieInFisier.scrie("./date/Carte.csv", continutFisier);
         ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Carte.csv");
         System.out.println(fisier);
@@ -548,6 +575,34 @@ public class Serviciu {
                 e.printStackTrace();
                 System.out.println("nu am putut incarca cititorii din baza de date");
             }
+
+            resultSet = carteServiciu.read();
+            try {
+                while (resultSet.next()) {
+                    int idAutor = resultSet.getInt("idAutor");
+                    int idEditura = resultSet.getInt("idEditura");
+                    String denumireEditura = edituraServiciu.getDenumireById(idEditura);
+                    String numeAutor = autorServiciu.getNumeById(idAutor);
+                    String prenumeAutor = autorServiciu.getPrenumeById(idAutor);
+                    boolean hardcover = false;
+                    if (resultSet.getInt("hardCover") == 1) {
+                        hardcover = true;
+                    }
+
+                    Autor autor = new Autor(prenumeAutor, numeAutor);
+                    Editura editura = new Editura(denumireEditura);
+                    Carte carte = new Carte(resultSet.getString("titluCarte"), autor,
+                            resultSet.getInt("numarVolum"), editura, resultSet.getInt("numarPagini"),
+                            resultSet.getString("ISBN"), resultSet.getInt("numarExemplare"),
+                            hardcover);
+
+                    cartiBiblioteca.add(carte);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("nu am putut incarca cartile din baza de date");
+            }
+
         } else if (entitate.equals("cititor")) {
             // adaugam in listele de cititori ce se gaseste in baza de date
             ResultSet resultSet = cititorServiciu.read();
@@ -595,6 +650,33 @@ public class Serviciu {
             } catch (SQLException e) {
                 e.printStackTrace();
                 System.out.println("nu am putut incarca autorii din baza de date");
+            }
+        } else if (entitate.equals("carte")) {
+            ResultSet resultSet = carteServiciu.read();
+            try {
+                while (resultSet.next()) {
+                    int idAutor = resultSet.getInt("idAutor");
+                    int idEditura = resultSet.getInt("idEditura");
+                    String denumireEditura = edituraServiciu.getDenumireById(idEditura);
+                    String numeAutor = autorServiciu.getNumeById(idAutor);
+                    String prenumeAutor = autorServiciu.getPrenumeById(idAutor);
+                    boolean hardcover = false;
+                    if (resultSet.getInt("hardCover") == 1) {
+                        hardcover = true;
+                    }
+
+                    Autor autor = new Autor(prenumeAutor, numeAutor);
+                    Editura editura = new Editura(denumireEditura);
+                    Carte carte = new Carte(resultSet.getString("titluCarte"), autor,
+                        resultSet.getInt("numarVolum"), editura, resultSet.getInt("numarPagini"),
+                        resultSet.getString("ISBN"), resultSet.getInt("numarExemplare"),
+                        hardcover);
+
+                    cartiBiblioteca.add(carte);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("nu am putut incarca cartile din baza de date");
             }
         }
 

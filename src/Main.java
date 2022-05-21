@@ -81,13 +81,17 @@ public class Main {
             "afisare_inventar", "afisare_carti_imprumutate", "afisare_carti_autor", "adaugare_cititor_guest",
             "returnare_carte", "imprumutare_carte", "adaugare_autor", "adaugare_editura", "afisare_edituri",
             "actualizare_editura", "stergere_editura", "afisare_cititori", "actualizare_cititor",
-            "stergere_cititor");
+            "stergere_cititor", "actualizare_autor", "stergere_autor");
 
         System.out.println("Acestea sunt comenzile disponibile:");
         for(int i = 0; i < comenziDisponibile.size(); i++) {
-            System.out.println((i + 1) + "). " + comenziDisponibile.get(i));
+            if (i + 1 < 10) {
+                System.out.println(" " + (i + 1) + "). " + comenziDisponibile.get(i));
+            } else {
+                System.out.println((i + 1) + "). " + comenziDisponibile.get(i));
+            }
         }
-        System.out.println("\nIntroduce un numar intre 1 - 17 pentru a alege una din aceste comenzi, sau 0 pentru a " +
+        System.out.println("\nIntroduce un numar intre 1 - 19 pentru a alege una din aceste comenzi, sau 0 pentru a " +
                 "parasi meniul: ");
         String comanda = console.next();
         System.out.println("\nAi ales comanda " + comenziDisponibile.get((parseInt(comanda)) - 1) + ".");
@@ -161,6 +165,14 @@ public class Main {
                 }
                 case "17": {
                     serviciu.stergere_cititor(console);
+                    break;
+                }
+                case "18": {
+                    serviciu.actualizare_autor(console);
+                    break;
+                }
+                case "19": {
+                    serviciu.stergere_autor(console);
                     break;
                 }
             }

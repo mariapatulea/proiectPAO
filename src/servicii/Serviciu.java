@@ -20,6 +20,7 @@ public class Serviciu {
     private final AuditServiciu audit = AuditServiciu.getInstance();
     private final EdituraServiciu edituraServiciu = EdituraServiciu.getInstance();
     private final CititorServiciu cititorServiciu = CititorServiciu.getInstance();
+    private final AutorServiciu autorServiciu = AutorServiciu.getInstance();
 
     // comanda 1
     public void adaugare_cititor_membru(Scanner console) {
@@ -41,6 +42,8 @@ public class Serviciu {
         } else {
             System.out.println("nu am putut apela metoda create din CititorServiciu");
         }
+
+        incarcaDateDB("cititor");
 
         Membru membruNou = new Membru(prenume, nume, id, cartiImprumutate);
         scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
@@ -70,6 +73,8 @@ public class Serviciu {
         } else {
             System.out.println("nu am putut apela metoda create din CititorServiciu");
         }
+
+        incarcaDateDB("cititor");
 
         Guest guestNou = new Guest(prenume, nume, id, cartiImprumutate);
         scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
@@ -189,6 +194,14 @@ public class Serviciu {
         System.out.println("Nume autor: ");
         String nume = console.next();
         continutFisier.add(nume);
+
+        if(autorServiciu.create(prenume, nume)) {
+            System.out.println("am apelat cu succes metoda create din AutorServiciu");
+        } else {
+            System.out.println("nu am putut apela metoda create din AutorServiciu");
+        }
+        incarcaDateDB("autor");
+
         Autor autorNou = new Autor(prenume, nume);
         scrieInFisier.scrie("./date/Autor.csv", continutFisier);
         ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Autor.csv");
@@ -390,6 +403,48 @@ public class Serviciu {
         audit.log("afisare_carti_autor");
     }
 
+    // comanda 18
+    public void actualizare_autor(Scanner console) {
+        System.out.println("Introduceti Id-ul autorului: ");
+        int id = console.nextInt();
+        System.out.println("Introduceti noul nume al autorului: ");
+        String nume = console.next();
+
+        if (autorServiciu.update(id, nume)) {
+            System.out.println("am actualizat autorul si baza de date");
+            incarcaDateDB("autor");
+        } else {
+            System.out.println("nu am putut actualiza autorul");
+        }
+
+        audit.log("actualizare_autor");
+    }
+
+    // comanda 19
+    public void stergere_autor(Scanner console) {
+        System.out.println("Introduceti Id-ul autorului pe care doriti sa il stergeti: ");
+        int id = console.nextInt();
+        int[] ids = autorServiciu.getAllIds();
+        int ok = 0;
+        if (ids != null) {
+            for (int i = 0; i < ids.length; i++) {
+                if (ids[i] == id) {
+                    ok = 1;
+                    break;
+                }
+            }
+        }
+
+        if (autorServiciu.delete(id) && ok == 1) {
+            System.out.println("am sters autorul cu id-ul " + id);
+            incarcaDateDB("autor");
+        } else {
+            System.out.println("nu am putut sterge autorul");
+        }
+
+        audit.log("stergere_autor");
+    }
+
     // metoda care incarca datele din fisierele csv
     public void incarcaDateCSV() {
         CitesteDinFisier citesteDinFisier = CitesteDinFisier.getInstance();
@@ -446,8 +501,21 @@ public class Serviciu {
     // metoda care incarca datele din baza de date
     public void incarcaDateDB(String entitate) {
         if (entitate.equals("all")) {
+            // adaugam in lista de autori ce se gaseste in baza de date
+            ResultSet resultSet = autorServiciu.read();
+            try {
+                while (resultSet.next()) {
+                    Autor autor = new Autor(resultSet.getString("prenume"),
+                        resultSet.getString("nume"));
+                    autoriCarti.add(autor);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("nu am putut incarca autorii din baza de date");
+            }
+
             // adaugam in lista de edituri ce se gaseste in baza de date
-            ResultSet resultSet = edituraServiciu.read();
+            resultSet = edituraServiciu.read();
             try {
                 while (resultSet.next()) {
                     Editura editura = new Editura(resultSet.getString("denumire"));
@@ -514,6 +582,19 @@ public class Serviciu {
             } catch (SQLException e) {
                 e.printStackTrace();
                 System.out.println("nu am putut incarca editurile din baza de date");
+            }
+        } else if (entitate.equals("autor")) {
+            // adaugam in lista de autori ce se gaseste in baza de date
+            ResultSet resultSet = autorServiciu.read();
+            try {
+                while (resultSet.next()) {
+                    Autor autor = new Autor(resultSet.getString("prenume"),
+                            resultSet.getString("nume"));
+                    autoriCarti.add(autor);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("nu am putut incarca autorii din baza de date");
             }
         }
 

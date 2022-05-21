@@ -1,11 +1,9 @@
 package servicii;
 
-import javax.swing.plaf.nimbus.State;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 
 public class CititorServiciu {
     private static CititorServiciu instanta = null;
@@ -50,7 +48,7 @@ public class CititorServiciu {
             System.out.println(query);
             Statement statement = connection.createStatement();
             statement.executeUpdate(query);
-            System.out.println("'Create' realizat cu succes!");
+            System.out.println("'Create' apelat cu succes!");
             statement.close();
             connection.close();
             return true;
@@ -69,7 +67,7 @@ public class CititorServiciu {
             System.out.println(query);
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
-            System.out.println("'Select' realizat cu succes!");
+            System.out.println("'Select' apelat cu succes!");
 //            statement.close();
 //            connection.close();
             return resultSet;
@@ -88,7 +86,7 @@ public class CititorServiciu {
             System.out.println(query);
             Statement statement = connection.createStatement();
             statement.executeUpdate(query);
-            System.out.println("'Update' realizat cu succes!");
+            System.out.println("'Update' apelat cu succes!");
             statement.close();
             connection.close();
             return true;
@@ -106,7 +104,7 @@ public class CititorServiciu {
             System.out.println(query);
             Statement statement = connection.createStatement();
             statement.executeUpdate(query);
-            System.out.println("'Delete' realizat cu succes!");
+            System.out.println("'Delete' apelat cu succes!");
             statement.close();
             connection.close();
             return true;

@@ -2,42 +2,47 @@ package servicii;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
-public class EdituraServiciu {
-    private static EdituraServiciu instanta = null;
+public class AutorServiciu {
+    private static AutorServiciu instanta = null;
     private final Database bazaDeDate = Database.getInstance();
 
     // constructor privat
-    private EdituraServiciu() { }
+    private AutorServiciu() { }
 
-    public static EdituraServiciu getInstance() {
+    public static AutorServiciu getInstance() {
         if (instanta == null)
-            instanta = new EdituraServiciu();
+            instanta = new AutorServiciu();
         return instanta;
     }
 
-    public String getDenumireById(int id) {
+    public int[] getAllIds() {
+        int[] ids = new int[100];
+        int i = 0;
         try {
-            String query = String.format("select * from edituri where idEditura = %d", id);
+            String query = "select idCititor from cititori";
             Connection connection = bazaDeDate.incarcaBazaDeDate();
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
-            String denumire = "";
             while (resultSet.next()) {
-                denumire = resultSet.getString("denumire");
+                int id = resultSet.getInt("idCititor");
+                ids[i] = id;
+                i++;
             }
-            return denumire;
-
-        } catch (Exception e) {
-            return "";
+            return ids;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
     // create
-    public boolean create(String denumire) {
+    public boolean create(String prenume, String nume) {
         try {
-            String query = String.format("insert into edituri (denumire) values ('%s')", denumire);
+            String query = String.format("insert into autori (prenume, nume) values ('%s', '%s')", prenume,
+                    nume);
             Connection connection = bazaDeDate.incarcaBazaDeDate();
             System.out.println(query);
             Statement statement = connection.createStatement();
@@ -56,7 +61,7 @@ public class EdituraServiciu {
     // read
     public ResultSet read() {
         try {
-            String query = "select * from edituri order by idEditura";
+            String query = "select * from autori order by idAutor";
             Connection connection = bazaDeDate.incarcaBazaDeDate();
             System.out.println(query);
             Statement statement = connection.createStatement();
@@ -73,9 +78,9 @@ public class EdituraServiciu {
     }
 
     // update
-    public boolean update(String denumire, int id) {
+    public boolean update(int id, String nume) {
         try {
-            String query = String.format("update edituri set idEditura = %d where denumire = '%s'", id, denumire);
+            String query = String.format("update autori set nume = '%s' where idAutor = %d", nume, id);
             Connection connection = bazaDeDate.incarcaBazaDeDate();
             System.out.println(query);
             Statement statement = connection.createStatement();
@@ -84,7 +89,6 @@ public class EdituraServiciu {
             statement.close();
             connection.close();
             return true;
-
         } catch(Exception e) {
             e.printStackTrace();
             return false;
@@ -94,7 +98,7 @@ public class EdituraServiciu {
     // delete
     public boolean delete(int id) {
         try {
-            String query = String.format("delete from edituri where idEditura = %d", id);
+            String query = String.format("delete from autori where idAutor = %d", id);
             Connection connection = bazaDeDate.incarcaBazaDeDate();
             System.out.println(query);
             Statement statement = connection.createStatement();

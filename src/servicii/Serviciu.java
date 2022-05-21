@@ -19,6 +19,7 @@ public class Serviciu {
     private final CitesteDinFisier citesteDinFisier = CitesteDinFisier.getInstance();
     private final AuditServiciu audit = AuditServiciu.getInstance();
     private final EdituraServiciu edituraServiciu = EdituraServiciu.getInstance();
+    private final CititorServiciu cititorServiciu = CititorServiciu.getInstance();
 
     // comanda 1
     public void adaugare_cititor_membru(Scanner console) {
@@ -34,6 +35,12 @@ public class Serviciu {
         continutFisier.add(Integer.toString(id));
         List<Carte> cartiImprumutate = new ArrayList<>();
         continutFisier.add("membru");
+
+        if(cititorServiciu.create(prenume, nume, "membru")) {
+            System.out.println("am apelat cu succes metoda create din CititorServiciu");
+        } else {
+            System.out.println("nu am putut apela metoda create din CititorServiciu");
+        }
 
         Membru membruNou = new Membru(prenume, nume, id, cartiImprumutate);
         scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
@@ -57,6 +64,12 @@ public class Serviciu {
         continutFisier.add(Integer.toString(id));
         List<Carte> cartiImprumutate = new ArrayList<>();
         continutFisier.add("guest");
+
+        if(cititorServiciu.create(prenume, nume, "guest")) {
+            System.out.println("am apelat cu succes metoda create din CititorServiciu");
+        } else {
+            System.out.println("nu am putut apela metoda create din CititorServiciu");
+        }
 
         Guest guestNou = new Guest(prenume, nume, id, cartiImprumutate);
         scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
@@ -223,6 +236,65 @@ public class Serviciu {
         audit.log("afisare_edituri");
     }
 
+    // comanda 15
+    public void afisare_cititori() {
+        ResultSet resultSet = cititorServiciu.read();
+        try {
+            while (resultSet.next()) {
+                System.out.println("Id: " + resultSet.getString("idCititor") + " Prenume: " +
+                    resultSet.getString("prenume") + " Nume: " + resultSet.getString("nume")
+                    + " Tip: " + resultSet.getString("tip"));
+            }
+        } catch(SQLException ex) {
+            System.out.println("nu am putut apela metoda read din CititorServiciu");
+        }
+
+        audit.log("afisare_cititori");
+    }
+
+    // comanda 16
+    public void actualizare_cititor(Scanner console) {
+        System.out.println("Id-ul cititorului de actualizat: ");
+        int id = console.nextInt();
+        System.out.println("Noul tip de cititor: ");
+        String tip = console.next();
+
+        if(cititorServiciu.update(tip, id)) {
+            System.out.println("am actualizat baza de date");
+            afisare_cititori();
+            incarcaDateDB("cititor");
+        } else {
+            System.out.println("nu am putut actualiza tipul cititorului");
+        }
+
+        audit.log("actualizare_cititor");
+    }
+
+    // comanda 17
+    public void stergere_cititor(Scanner console) {
+        System.out.println("Id-ul cititorului de sters: ");
+        int id = console.nextInt();
+        int[] ids = cititorServiciu.getAllIds();
+        int ok = 0;
+        if (ids != null) {
+            for (int i = 0; i < ids.length; i++) {
+                if (ids[i] == id) {
+                    ok = 1;
+                    break;
+                }
+            }
+        }
+        if(cititorServiciu.delete(id) && ok == 1) {
+            System.out.println("am sters cititorul cu id-ul " + id);
+            afisare_cititori();
+            incarcaDateDB("cititor");
+        } else {
+            System.out.println("nu am putut sterge cititorul");
+        }
+
+        audit.log("stergere_cititor");
+    }
+
     // comanda 13
     public void actualizare_editura(Scanner console) {
         System.out.println("Numele editurii de actualizat: ");
@@ -246,22 +318,12 @@ public class Serviciu {
         int id = console.nextInt();
         String denumire = edituraServiciu.getDenumireById(id);
 
-        if(!denumire.equals("")) {
-            if (edituraServiciu.delete(id)) {
-                System.out.println("am actualizat baza de date");
-                afisare_edituri();
-                // trebuie sa sterg editura asta din lista de edituri din clasa Serviciu
-                for (int i = 0; i < edituriCarti.size(); i++) {
-                    if (edituriCarti.get(i).getDenumire().equals(denumire)) {
-                        edituriCarti.remove(i);
-                        break;
-                    }
-                }
-            } else {
-                System.out.println("nu am putut sterge editura");
-            }
+        if(edituraServiciu.delete(id)) {
+            System.out.println("am sters editura cu id-ul " + id);
+            afisare_edituri();
+            incarcaDateDB("editura");
         } else {
-            System.out.println("nu am gasit aceasta editura in baza de date");
+            System.out.println("nu am putut sterge editura");
         }
 
         audit.log("stergere_editura");
@@ -382,18 +444,77 @@ public class Serviciu {
     }
 
     // metoda care incarca datele din baza de date
-    public void incarcaDateDB() {
-        // adaugam in lista de edituri ce se gaseste in baza de date
-        ResultSet resultSet = edituraServiciu.read();
-        try {
-            while (resultSet.next()) {
-                Editura editura = new Editura(resultSet.getString("denumire"));
-                edituriCarti.add(editura);
+    public void incarcaDateDB(String entitate) {
+        if (entitate.equals("all")) {
+            // adaugam in lista de edituri ce se gaseste in baza de date
+            ResultSet resultSet = edituraServiciu.read();
+            try {
+                while (resultSet.next()) {
+                    Editura editura = new Editura(resultSet.getString("denumire"));
+                    edituriCarti.add(editura);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("nu am putut incarca editurile din baza de date");
             }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("nu am putut incarca editurile din baza de date");
+
+            // adaugam in listele de cititori ce se gaseste in baza de date
+            resultSet = cititorServiciu.read();
+            try {
+                while (resultSet.next()) {
+                    if (resultSet.getString("tip").equals("membru")) {
+                        ArrayList<Carte> cartiImprumutate = new ArrayList<>();
+                        Membru membru = new Membru(resultSet.getString("prenume"),
+                                resultSet.getString("nume"), resultSet.getInt("idCititor"),
+                                cartiImprumutate);
+                        cititoriMembri.add(membru);
+                    } else {
+                        ArrayList<Carte> cartiImprumutate = new ArrayList<>();
+                        Guest guest = new Guest(resultSet.getString("prenume"),
+                                resultSet.getString("nume"), resultSet.getInt("idCititor"),
+                                cartiImprumutate);
+                        cititoriGuests.add(guest);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("nu am putut incarca cititorii din baza de date");
+            }
+        } else if (entitate.equals("cititor")) {
+            // adaugam in listele de cititori ce se gaseste in baza de date
+            ResultSet resultSet = cititorServiciu.read();
+            try {
+                while (resultSet.next()) {
+                    if (resultSet.getString("tip").equals("membru")) {
+                        ArrayList<Carte> cartiImprumutate = new ArrayList<>();
+                        Membru membru = new Membru(resultSet.getString("prenume"),
+                                resultSet.getString("nume"), resultSet.getInt("idCititor"),
+                                cartiImprumutate);
+                        cititoriMembri.add(membru);
+                    } else {
+                        ArrayList<Carte> cartiImprumutate = new ArrayList<>();
+                        Guest guest = new Guest(resultSet.getString("prenume"),
+                                resultSet.getString("nume"), resultSet.getInt("idCititor"),
+                                cartiImprumutate);
+                        cititoriGuests.add(guest);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("nu am putut incarca cititorii din baza de date");
+            }
+        } else if (entitate.equals("editura")) {
+            // adaugam in lista de edituri ce se gaseste in baza de date
+            ResultSet resultSet = edituraServiciu.read();
+            try {
+                while (resultSet.next()) {
+                    Editura editura = new Editura(resultSet.getString("denumire"));
+                    edituriCarti.add(editura);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("nu am putut incarca editurile din baza de date");
+            }
         }
 
         System.out.println("Am incarcat datele din baza de date!");

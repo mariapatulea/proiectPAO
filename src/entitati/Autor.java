@@ -80,6 +80,6 @@ public class Autor {
     }
 
     public void afisareAutor() {
-        System.out.println("entitati.Autor: " + this.prenume + " " + this.nume);
+        System.out.println("Autor: " + this.prenume + " " + this.nume);
     }
 }

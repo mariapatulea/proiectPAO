@@ -37,7 +37,7 @@ public class Sectiune {
 
     // metode
     public void afisare() {
-        System.out.println("entitati.Sectiune: " + this.gen);
+        System.out.println("Sectiune: " + this.gen);
         // iteram prin lista de carti
         System.out.println("Carti din aceasta sectiune: ");
         for(Carte carte: this.carti) {

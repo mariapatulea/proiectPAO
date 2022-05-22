@@ -35,7 +35,7 @@ public class Agent {
         this.agentie = agentie;
     }
 
-    // metode
+    // metode specifice
     public void afisare() {
         System.out.println("Prenume agent: " + this.prenume);
         System.out.println("Nume agent: " + this.nume);

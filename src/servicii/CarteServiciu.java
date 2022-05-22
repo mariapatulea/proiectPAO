@@ -2,6 +2,7 @@ package servicii;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class CarteServiciu {
@@ -17,20 +18,72 @@ public class CarteServiciu {
         return instanta;
     }
 
+    public int getIdByTitle(String titluCarte) {
+        try {
+            String query = String.format("select idCarte from carti where titluCarte = '%s'", titluCarte);
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                int idCarte = resultSet.getInt("idCarte");
+                return idCarte;
+            }
+            System.out.println("error");
+            return -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("nu am putut prelua id-ul cartii");
+            return -1;
+        }
+    }
+
+    public int getNrExemplare(int id) {
+        try {
+            String query = String.format("select numarExemplare from carti where idCarte = %d", id);
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                int nrExemplare = resultSet.getInt("numarExemplare");
+                return nrExemplare;
+            }
+            System.out.println("error");
+            return -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("nu am putut prelua numarul de exemplare al cartii");
+            return -1;
+        }
+    }
+
+    public int[] getAllIds() {
+        int[] ids = new int[100];
+        int i = 0;
+        try {
+            String query = "select idCarte from carti";
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                int id = resultSet.getInt("idCarte");
+                ids[i] = id;
+                i++;
+            }
+            return ids;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("error here");
+            return null;
+        }
+    }
+
     // create
     public boolean create(String titluCarte, int numarVolum, int idEditura, int numarPagini, String ISBN, int
-        numarExemplare, boolean hardCover, int idCititor, int idAutor) {
+        numarExemplare, boolean hardCover, int idAutor) {
         try {
-            String query;
-            if (idCititor == -1) {
-                query = String.format("insert into carti (titluCarte, numarVolum, idEditura, numarPagini, ISBN, " +
-                    "numarExemplare, hardCover, idCititor, idAutor) values ('%s', %d, %d, %d, '%s', %d, %b, null, %d)",
-                     titluCarte, numarVolum, idEditura, numarPagini, ISBN, numarExemplare, hardCover, idAutor);
-            } else {
-                query = String.format("insert into carti (titluCarte, numarVolum, idEditura, numarPagini, ISBN, " +
-                    "numarExemplare, hardCover, idCititor, idAutor) values ('%s', %d, %d, %d, '%s', %d, %b, %d, %d)",
-                    titluCarte, numarVolum, idEditura, numarPagini, ISBN, numarExemplare, hardCover, idCititor, idAutor);
-            }
+            String query = String.format("insert into carti (titluCarte, numarVolum, idEditura, numarPagini, ISBN, " +
+                "numarExemplare, hardCover, idAutor) values ('%s', %d, %d, %d, '%s', %d, %b, %d)",
+                titluCarte, numarVolum, idEditura, numarPagini, ISBN, numarExemplare, hardCover, idAutor);
             Connection connection = bazaDeDate.incarcaBazaDeDate();
             System.out.println(query);
             Statement statement = connection.createStatement();
@@ -46,6 +99,7 @@ public class CarteServiciu {
         }
     }
 
+    // read
     public ResultSet read() {
         try {
             String query = "select * from carti order by idCarte";

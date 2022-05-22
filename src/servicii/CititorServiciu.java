@@ -18,6 +18,61 @@ public class CititorServiciu {
         return instanta;
     }
 
+    public int getNrCartiImprumutate(int id) {
+        try {
+            String query = String.format("select nrCartiImprumutate from cititori where idCititor = %d", id);
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                int nrCartiImprumutate = resultSet.getInt("nrCartiImprumutate");
+                return nrCartiImprumutate;
+            }
+            System.out.println("error");
+            return -1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("nu am putut prelua numarul de exemplare al cartii");
+            return -1;
+        }
+    }
+
+    public String getTipCititor(int id) {
+        try {
+            String query = String.format("select tip from cititori where idCititor = %d", id);
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()) {
+                String tipCititor = resultSet.getString("tip");
+                return tipCititor;
+            }
+            System.out.println("error");
+            return "";
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("nu am putut prelua numarul de exemplare al cartii");
+            return "";
+        }
+    }
+
+    public int getIdByLastName(String nume) {
+        try {
+            String query = String.format("select idCititor from cititori where nume = '%s'", nume);
+            Connection connection = bazaDeDate.incarcaBazaDeDate();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+            int id = -1;
+            while (resultSet.next()) {
+                id = resultSet.getInt("idCititor");
+            }
+            return id;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
     public int[] getAllIds() {
         int[] ids = new int[100];
         int i = 0;

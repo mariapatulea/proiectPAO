@@ -22,34 +22,32 @@ public class Serviciu {
     private final CititorServiciu cititorServiciu = CititorServiciu.getInstance();
     private final AutorServiciu autorServiciu = AutorServiciu.getInstance();
     private final CarteServiciu carteServiciu = CarteServiciu.getInstance();
+    private final CartiCititoriServiciu cartiCititoriServiciu = CartiCititoriServiciu.getInstance();
 
     // comanda 1
     public void adaugare_cititor_membru(Scanner console) {
         ArrayList<String> continutFisier = new ArrayList<>();
         System.out.println("Prenume cititor: ");
         String prenume = console.next();
-        continutFisier.add(prenume);
         System.out.println("Nume cititor: ");
         String nume = console.next();
-        continutFisier.add(nume);
-        System.out.println("ID cititor: ");
-        int id = console.nextInt();
-        continutFisier.add(Integer.toString(id));
-        List<Carte> cartiImprumutate = new ArrayList<>();
-        continutFisier.add("membru");
 
         if(cititorServiciu.create(prenume, nume, "membru")) {
             System.out.println("am apelat cu succes metoda create din CititorServiciu");
+            int idCititor = cititorServiciu.getIdByLastName(nume);
+            continutFisier.add(prenume);
+            continutFisier.add(nume);
+            continutFisier.add(Integer.toString(idCititor));
+            continutFisier.add("membru");
         } else {
             System.out.println("nu am putut apela metoda create din CititorServiciu");
         }
 
         incarcaDateDB("cititor");
 
-        Membru membruNou = new Membru(prenume, nume, id, cartiImprumutate);
         scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
-        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Cititor.csv");
-        System.out.println(fisier);
+//        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Cititor.csv");
+//        System.out.println(fisier);
 
         audit.log("adaugare_cititor_membru");
     }
@@ -59,60 +57,44 @@ public class Serviciu {
         ArrayList<String> continutFisier = new ArrayList<>();
         System.out.println("Prenume cititor: ");
         String prenume = console.next();
-        continutFisier.add(prenume);
         System.out.println("Nume cititor: ");
         String nume = console.next();
-        continutFisier.add(nume);
-        System.out.println("ID cititor: ");
-        int id = console.nextInt();
-        continutFisier.add(Integer.toString(id));
-        List<Carte> cartiImprumutate = new ArrayList<>();
-        continutFisier.add("guest");
 
         if(cititorServiciu.create(prenume, nume, "guest")) {
             System.out.println("am apelat cu succes metoda create din CititorServiciu");
+            int idCititor = cititorServiciu.getIdByLastName(nume);
+            continutFisier.add(prenume);
+            continutFisier.add(nume);
+            continutFisier.add(Integer.toString(idCititor));
+            continutFisier.add("guest");
         } else {
             System.out.println("nu am putut apela metoda create din CititorServiciu");
         }
 
         incarcaDateDB("cititor");
 
-        Guest guestNou = new Guest(prenume, nume, id, cartiImprumutate);
         scrieInFisier.scrie("./date/Cititor.csv", continutFisier);
-        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Cititor.csv");
-        System.out.println(fisier);
+//        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Cititor.csv");
+//        System.out.println(fisier);
 
         audit.log("adaugare_cititor_guest");
     }
 
     // comanda 9
     public void imprumutare_carte(Scanner console) {
-        for(Membru c: cititoriMembri) {
-            System.out.println(c.getIdCititor());
-        }
+        // afisam cititorii si cartile (cu tot cu id)
+        afisare_cititori();
         System.out.println("Introduceti ID-ul cititorului care doreste sa imprumute o carte: ");
         int idCititor = console.nextInt();
-        System.out.println("Introduceti ISBN-ul cartii: ");
-        String isbn = console.next();
-        for(Membru cititor: cititoriMembri) {
-            if(cititor.getIdCititor() == idCititor) {
-                for(Carte carte: cartiBiblioteca) {
-                    if(Objects.equals(carte.getISBN(), isbn) && carte.getNumarExemplare() >= 1) {
-                        List<Carte> cartiImpr = cititor.getCartiImprumutate();
-                        cartiImpr.add(carte);
-                        carte.setNumarExemplare(carte.getNumarExemplare() - 1);
-                        cititor.setCartiImprumutate(cartiImpr);
-                        System.out.println("Cititorul cu ID-ul " + idCititor + " a imprumutat cartea cu isbn-ul " +
-                                isbn);
-                        for(Carte _carte: cititor.getCartiImprumutate()) {
-                            _carte.afisare();
-                        }
-                        System.out.println("Am afisat cartile imprumutate de cititorul cu id-ul " + idCititor + ".");
-                        break;
-                    }
-                }
-                break;
-            }
+
+        afisare_carti();
+        System.out.println("Introduceti ID-ul cartii: ");
+        int idCarte = console.nextInt();
+
+        if (cartiCititoriServiciu.create(idCarte, idCititor)) {
+            System.out.println("Cititorul a imprumutat o carte si am actualizat baza de date!");
+        } else {
+            System.out.println("EROARE! Cititorul nu a putut imprumuta o carte!");
         }
 
         audit.log("imprumutare_carte");
@@ -120,26 +102,18 @@ public class Serviciu {
 
     // comanda 8
     public void returnare_carte(Scanner console) {
-        // ne trb id-ul cititorului si isbn-ul cartii
+        // trb sa afisam ceva de genul cititorul cu id-ul x a imprumutat cartea cu id-ul y
+        cartiCititoriServiciu.read();
         System.out.println("Introduceti ID-ul cititorului care doreste sa returneze o carte: ");
         int idCititor = console.nextInt();
-        System.out.println("Introduceti ISBN-ul cartii: ");
-        String isbn = console.next();
-        for(Cititor cititor: cititoriMembri) {
-            if(cititor.getIdCititor() == idCititor) {
-                for(Carte carte: cartiBiblioteca) {
-                    if(Objects.equals(carte.getISBN(), isbn) && cititor.getCartiImprumutate().contains(carte)) {
-                        List<Carte> cartiImpr = cititor.getCartiImprumutate();
-                        cartiImpr.remove(carte);
-                        carte.setNumarExemplare(carte.getNumarExemplare() + 1);
-                        cititor.setCartiImprumutate(cartiImpr);
-                        System.out.println("Cititorul cu ID-ul " + idCititor + " a returnat cartea cu isbn-ul " +
-                                isbn);
-                        break;
-                    }
-                }
-                break;
-            }
+
+        System.out.println("Introduceti ID-ul cartii: ");
+        int idCarte = console.nextInt();
+
+        if (cartiCititoriServiciu.delete(idCarte, idCititor)) {
+            System.out.println("Cititorul a returnat o carte si am actualizat baza de date!");
+        } else {
+            System.out.println("EROARE! Cititorul nu a putut returna o carte!");
         }
 
         audit.log("returnare_carte");
@@ -150,13 +124,10 @@ public class Serviciu {
         ArrayList<String> continutFisier = new ArrayList<>();
         System.out.println("Titlu carte: ");
         String titluCarte = console.next();
-        continutFisier.add(titluCarte);
         System.out.println("Prenume autor: ");
         String prenumeAutor = console.next();
         System.out.println("Nume autor: ");
         String numeAutor = console.next();
-        continutFisier.add(numeAutor);
-        continutFisier.add(prenumeAutor);
 
         // get id autor
         int idAutor = autorServiciu.getIdByLastName(numeAutor);
@@ -167,7 +138,6 @@ public class Serviciu {
 
         System.out.println("Numar volum: ");
         int numarVolum = console.nextInt();
-        continutFisier.add(Integer.toString(numarVolum));
         System.out.println("Editura: ");
         String editura = console.next();
         continutFisier.add(editura);
@@ -181,33 +151,36 @@ public class Serviciu {
 
         System.out.println("Numar pagini: ");
         int numarPagini = console.nextInt();
-        continutFisier.add(Integer.toString(numarPagini));
         System.out.println("ISBN: ");
         String isbn = console.next();
-        continutFisier.add(isbn);
         System.out.println("Exemplare disponibile: ");
         int numarExemplare = console.nextInt();
-        continutFisier.add(Integer.toString(numarExemplare));
         System.out.println("Hardcover? ");
-        Boolean hardcover = console.nextBoolean();
-        if (hardcover) {
-            continutFisier.add("Da");
-        } else {
-            continutFisier.add("Nu");
-        }
+        boolean hardcover = console.nextBoolean();
 
         if (carteServiciu.create(titluCarte, numarVolum, idEditura, numarPagini, isbn, numarExemplare, hardcover,
-            -1, idAutor)) {
+            idAutor)) {
             System.out.println("am adaugat cartea in baza de date");
+            continutFisier.add(titluCarte);
+            continutFisier.add(numeAutor);
+            continutFisier.add(prenumeAutor);
+            continutFisier.add(Integer.toString(numarVolum));
+            continutFisier.add(Integer.toString(numarPagini));
+            continutFisier.add(isbn);
+            continutFisier.add(Integer.toString(numarExemplare));
+            if (hardcover) {
+                continutFisier.add("Da");
+            } else {
+                continutFisier.add("Nu");
+            }
             incarcaDateDB("carte");
         } else {
             System.out.println("nu am putut adauga cartea in baza de date");
         }
 
-//        Carte carteNoua = new Carte(titluCarte, autor, numarVolum, editura, numarPagini, isbn, numarExemplare, hardcover);
         scrieInFisier.scrie("./date/Carte.csv", continutFisier);
-        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Carte.csv");
-        System.out.println(fisier);
+//        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Carte.csv");
+//        System.out.println(fisier);
 
         audit.log("adaugare_carte");
     }
@@ -217,13 +190,14 @@ public class Serviciu {
         ArrayList<String> continutFisier = new ArrayList<>();
         System.out.println("Prenume autor: ");
         String prenume = console.next();
-        continutFisier.add(prenume);
         System.out.println("Nume autor: ");
         String nume = console.next();
-        continutFisier.add(nume);
 
         if(autorServiciu.create(prenume, nume)) {
             System.out.println("am apelat cu succes metoda create din AutorServiciu");
+            continutFisier.add(prenume);
+            continutFisier.add(nume);
+            incarcaDateDB("autor");
         } else {
             System.out.println("nu am putut apela metoda create din AutorServiciu");
         }
@@ -231,8 +205,8 @@ public class Serviciu {
 
         Autor autorNou = new Autor(prenume, nume);
         scrieInFisier.scrie("./date/Autor.csv", continutFisier);
-        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Autor.csv");
-        System.out.println(fisier);
+//        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Autor.csv");
+//        System.out.println(fisier);
 
         audit.log("adaugare_autor");
 
@@ -242,19 +216,20 @@ public class Serviciu {
     // comanda 11
     public Editura adaugare_editura(Scanner console) {
         ArrayList<String> continutFisier = new ArrayList<>();
-
         System.out.println("Editura: ");
         String denumire = console.next();
-        continutFisier.add(denumire);
+
         if(edituraServiciu.create(denumire)) {
             System.out.println("am apelat cu succes metoda create din EdituraServiciu");
+            continutFisier.add(denumire);
+            incarcaDateDB("editura");
         } else {
             System.out.println("nu am putut apela metoda create din EdituraServiciu");
         }
         Editura edituraNoua = new Editura(denumire);
         scrieInFisier.scrie("./date/Editura.csv", continutFisier);
-        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Editura.csv");
-        System.out.println(fisier);
+//        ArrayList<ArrayList<String>> fisier = citesteDinFisier.citeste("./date/Editura.csv");
+//        System.out.println(fisier);
 
         audit.log("adaugare_editura");
 
@@ -283,7 +258,8 @@ public class Serviciu {
             while (resultSet.next()) {
                 System.out.println("Id: " + resultSet.getString("idCititor") + " Prenume: " +
                     resultSet.getString("prenume") + " Nume: " + resultSet.getString("nume")
-                    + " Tip: " + resultSet.getString("tip"));
+                    + " Tip: " + resultSet.getString("tip") + " Numar carti imprumutate: " +
+                    resultSet.getInt("nrCartiImprumutate"));
             }
         } catch(SQLException ex) {
             System.out.println("nu am putut apela metoda read din CititorServiciu");
@@ -372,6 +348,7 @@ public class Serviciu {
     // comanda 3
     public void afisare_carti() {
         for(Carte carte: cartiBiblioteca) {
+            System.out.println("Id-ul cartii: " + carteServiciu.getIdByTitle(carte.getTitluCarte()));
             carte.afisare();
             System.out.println();
         }
@@ -383,8 +360,8 @@ public class Serviciu {
     public void afisare_inventar() {
         int numarTotalCarti = 0;
         for(Carte carte: cartiBiblioteca) {
-            System.out.println("Cartea cu isbn-ul " + carte.getISBN() + " se gaseste in " + carte.getNumarExemplare()
-                    + " exemplare.");
+            System.out.println("Cartea cu titlul " + carte.getTitluCarte() + " se gaseste in " +
+                carte.getNumarExemplare() + " exemplare.");
             numarTotalCarti += carte.getNumarExemplare();
         }
         System.out.println("Numar total de carti: " + numarTotalCarti + ".");
@@ -394,20 +371,7 @@ public class Serviciu {
 
     // comanda 5
     public void afisare_carti_imprumutate() {
-        int numarTotalCartiImprumutate = 0;
-        for(Cititor cititor: cititoriMembri) {
-            for(Carte carte: cititor.getCartiImprumutate()) {
-                carte.afisare();
-                numarTotalCartiImprumutate++;
-            }
-        }
-        for(Cititor cititor: cititoriGuests) {
-            for(Carte carte: cititor.getCartiImprumutate()) {
-                carte.afisare();
-                numarTotalCartiImprumutate++;
-            }
-        }
-        System.out.println("Numar total de carti imprumutate: " + numarTotalCartiImprumutate + ".");
+        cartiCititoriServiciu.read();
 
         audit.log("afisare_carti_imprumutate");
     }
@@ -418,12 +382,10 @@ public class Serviciu {
         String prenume = console.next();
         System.out.println("Introduceti numele autorului: ");
         String nume = console.next();
-        for(Autor autor: autoriCarti) {
-            if(Objects.equals(autor.getPrenume(), prenume) && Objects.equals(autor.getNume(), nume)) {
-                for(Carte cartePublicata: autor.getCartiPublicate()) {
-                    cartePublicata.afisare();
-                    System.out.println();
-                }
+        for (Carte carte: cartiBiblioteca) {
+            if (carte.getAutor().getNume().equals(nume)) {
+                carte.afisare();
+                System.out.println();
             }
         }
 
@@ -540,6 +502,8 @@ public class Serviciu {
                 e.printStackTrace();
                 System.out.println("nu am putut incarca autorii din baza de date");
             }
+
+            // adaugam aici cum incarcam datele din tabela carti_cititori!!
 
             // adaugam in lista de edituri ce se gaseste in baza de date
             resultSet = edituraServiciu.read();
